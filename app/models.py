@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 class DispatchBase(BaseModel):
     class Config:
-        orm_modefrom_attributes = True
+        from_attributes = True
         validate_assignment = True
         arbitrary_types_allowed = True
         str_strip_whitespace = True

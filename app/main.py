@@ -14,7 +14,8 @@ async def lifespan_wrapper(app: FastAPI):
         yield
     finally:
         print("finally")
-        print("sub shutdown")
+
+    print("sub shutdown")
 
 
 app = FastAPI(
