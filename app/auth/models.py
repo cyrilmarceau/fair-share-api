@@ -1,6 +1,11 @@
+import time
+from typing import Dict
+import bcrypt
+import jwt
 from pydantic import EmailStr
 from sqlmodel import Field, SQLModel
 
+from app.auth.config import AuthConfig
 from app.models import TimeStampMixin
 
 
@@ -13,3 +18,14 @@ class User(BaseUser, table=True):
     email: EmailStr = Field(unique=True)
     username: str
     password: str
+
+    def verify_password(self, plain_password: str) -> bool:
+        if not plain_password or not self.password:
+            return False
+        return bcrypt.checkpw(plain_password.encode("utf-8"), self.password)
+
+    def sign_jwt(self) -> Dict[str, str]:
+        auth_settings = AuthConfig()
+        payload = {"user_id": self.email, "expires": time.time() + 600}
+        token = jwt.encode(payload, auth_settings.SECRET_KEY, algorithm="HS256")
+        return {"access_token": token}

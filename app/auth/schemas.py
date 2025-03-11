@@ -28,4 +28,23 @@ class UserCreate(UserBase):
 
 
 class UserRegisterResponse(DispatchBase):
-    token: Optional[str] = Field(None, nullable=True)
+    access_token: Optional[str] = Field(None, nullable=True)
+
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+    @field_validator("password")
+    def password_required(cls, v):
+        if not v:
+            raise ValueError("Must not be empty string")
+        return v
+
+
+class UserLoginResponse(DispatchBase):
+    access_token: Optional[str] = Field(None, nullable=True)
+
+
+class UserRead(UserBase):
+    id: int = Field(primary_key=True)
