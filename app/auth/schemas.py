@@ -3,7 +3,7 @@ from pydantic import BaseModel, field_validator
 from pydantic.networks import EmailStr
 from sqlmodel import Field
 
-from app.models import DispatchBase
+from app.models import DispatchBase, TimeStampMixin
 
 
 class UserBase(BaseModel):
@@ -46,5 +46,5 @@ class UserLoginResponse(DispatchBase):
     access_token: Optional[str] = Field(None, nullable=True)
 
 
-class UserRead(UserBase):
+class UserRead(TimeStampMixin, UserBase):
     id: int = Field(primary_key=True)
