@@ -1,12 +1,14 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from app.auth.schemas import (
     UserCreate,
     UserLogin,
     UserLoginResponse,
+    UserRead,
     UserRegisterResponse,
 )
-from app.auth.service import get_by_email, get_password_hash
+from app.auth.service import get_by_email, get_current_user, get_password_hash
 from app.dependencies import get_session
 from app.auth.models import User
 
@@ -34,3 +36,10 @@ async def register(user_in: UserCreate, db_session: Session = Depends(get_sessio
     db_session.refresh(new_user)
 
     return new_user.sign_jwt()
+
+
+@auth_router.get("/users/me/", response_model=UserRead)
+async def read_users_me(
+    current_user: Annotated[UserRead, Depends(get_current_user)],
+):
+    return current_user

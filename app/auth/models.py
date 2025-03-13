@@ -26,6 +26,6 @@ class User(BaseUser, table=True):
 
     def sign_jwt(self) -> Dict[str, str]:
         auth_settings = AuthConfig()
-        payload = {"user_id": self.email, "expires": time.time() + 600}
+        payload = {"user_id": self.id, "expires": time.time() + 600}
         token = jwt.encode(payload, auth_settings.SECRET_KEY, algorithm="HS256")
         return {"access_token": token}
