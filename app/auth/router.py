@@ -1,6 +1,9 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
+
+from app.auth.models import User
 from app.auth.schemas import (
     UserCreate,
     UserLogin,
@@ -10,7 +13,7 @@ from app.auth.schemas import (
 )
 from app.auth.service import get_by_email, get_current_user, get_password_hash
 from app.dependencies import get_session
-from app.auth.models import User
+
 
 auth_router = APIRouter()
 
@@ -21,11 +24,29 @@ async def login(user_in: UserLogin, db_session: Session = Depends(get_session)):
     if user and user.verify_password(user_in.password):
         return user.sign_jwt()
 
-    return {"msg": "Invalid credentials"}
+    raise HTTPException(
+        status_code=400,
+        detail={
+            "error_type": "invalid.credentials",
+            "message": "Incorrect email or password",
+            "loc": "email",
+        },
+    )
 
 
 @auth_router.post("/register", response_model=UserRegisterResponse)
 async def register(user_in: UserCreate, db_session: Session = Depends(get_session)):
+    user = get_by_email(db_session=db_session, email=user_in.email)
+
+    if user:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error_type": "invalid.configuration",
+                "message": "A user with this email already exists.",
+                "loc": "email",
+            },
+        )
 
     hashed_password = get_password_hash(user_in.password)
     user_in.password = hashed_password

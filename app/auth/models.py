@@ -1,4 +1,4 @@
-import time
+from datetime import datetime, timedelta, timezone
 from typing import Dict
 import bcrypt
 import jwt
@@ -26,6 +26,8 @@ class User(BaseUser, table=True):
 
     def sign_jwt(self) -> Dict[str, str]:
         auth_settings = AuthConfig()
-        payload = {"user_id": self.id, "expires": time.time() + 600}
+
+        expire = datetime.now(timezone.utc) + timedelta(seconds=30)
+        payload = {"user_id": self.id, "expires": expire.isoformat()}
         token = jwt.encode(payload, auth_settings.SECRET_KEY, algorithm="HS256")
         return {"access_token": token}

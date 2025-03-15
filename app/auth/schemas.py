@@ -6,6 +6,10 @@ from sqlmodel import Field
 from app.models import DispatchBase, TimeStampMixin
 
 
+class AccessToken(DispatchBase):
+    access_token: Optional[str] = Field(None, nullable=True)
+
+
 class UserBase(BaseModel):
     username: str
     email: EmailStr
@@ -27,8 +31,8 @@ class UserCreate(UserBase):
         return password
 
 
-class UserRegisterResponse(DispatchBase):
-    access_token: Optional[str] = Field(None, nullable=True)
+class UserRegisterResponse(AccessToken):
+    pass
 
 
 class UserLogin(BaseModel):
@@ -42,8 +46,8 @@ class UserLogin(BaseModel):
         return v
 
 
-class UserLoginResponse(DispatchBase):
-    access_token: Optional[str] = Field(None, nullable=True)
+class UserLoginResponse(AccessToken):
+    pass
 
 
 class UserRead(TimeStampMixin, UserBase):
