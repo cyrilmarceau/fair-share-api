@@ -15,7 +15,7 @@ from app.auth.service import get_by_email, get_current_user, get_password_hash
 from app.dependencies import get_session
 
 
-auth_router = APIRouter()
+auth_router = APIRouter(tags=["authentication"])
 
 
 @auth_router.post("/login", response_model=UserLoginResponse)
