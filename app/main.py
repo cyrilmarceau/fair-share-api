@@ -5,12 +5,14 @@ from fastapi.exception_handlers import (
 from fastapi import status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi_pagination import add_pagination
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlmodel import SQLModel
 from fastapi import FastAPI, Request
 from app.database import engine
 from contextlib import asynccontextmanager
 from app.auth.router import auth_router
+from app.transactions.router import transaction_router
 
 
 @asynccontextmanager
@@ -35,6 +37,8 @@ app = FastAPI(
     lifespan=lifespan_wrapper,
 )
 
+add_pagination(app)
+
 
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(request, exc):
@@ -49,4 +53,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-app.include_router(auth_router)
+routers = [auth_router, transaction_router]
+
+[app.include_router(router) for router in routers]
