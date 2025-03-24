@@ -10,7 +10,9 @@ class TransactionBase(DispatchBase):
     to: str
     direction: TransactionDirection = TransactionDirection.TO_PAY
     amount: float
-    motif: str
+    title: str
+    category: str
+    due_date: datetime.datetime
 
     class Config:
         json_schema_extra = {
