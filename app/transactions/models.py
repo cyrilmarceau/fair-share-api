@@ -1,3 +1,4 @@
+import datetime
 import enum
 from typing import Optional
 from sqlmodel import Column, Enum, Field, Relationship, SQLModel
@@ -33,7 +34,14 @@ class Transaction(BaseTransaction, table=True):
         gt=0,
         description="Amount of the transaction, must be greater than 0",
     )
-    motif: str = Field(
+    title: str = Field(
         max_length=255,
-        description="Motif of the transaction, maximum length of 255 characters",
+        description="Title of the transaction, maximum length of 255 characters",
+    )
+    category: str = Field(
+        max_length=255,
+        description="Category of the transaction, maximum length of 255 characters",
+    )
+    due_date: datetime.datetime = Field(
+        description="Date where the transaction is due",
     )
