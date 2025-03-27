@@ -44,3 +44,16 @@ class TransactionResponse(TransactionRead):
 
 class TransactionCreateReponse(TransactionResponse):
     user: UserRead
+
+
+class TransactionAmountResponse(DispatchBase):
+    total_to_pay: float
+    total_to_receive: float
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "total_to_pay": 42.50,
+                "total_to_receive": 150.0,
+            }
+        }

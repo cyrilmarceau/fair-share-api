@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlmodel import paginate
 from sqlmodel import Session, select
@@ -9,6 +9,7 @@ from app.auth.service import get_current_user
 from app.dependencies import get_session
 from app.transactions.models import Transaction
 from app.transactions.schemas import (
+    TransactionAmountResponse,
     TransactionCreate,
     TransactionCreateReponse,
     TransactionRead,
@@ -17,9 +18,40 @@ from app.transactions.schemas import (
 transaction_router = APIRouter(tags=["Transactions"])
 
 
+@transaction_router.get("/transaction-amount", response_model=TransactionAmountResponse)
+async def get_transaction_amount(
+    current_user: Annotated[UserRead, Depends(get_current_user)],
+    db_session: Session = Depends(get_session),
+):
+    """Compute the total amount (to_pay and to_receive) and his amount for the authenticated user."""
+
+    statement = (
+        select(Transaction)
+        .where(Transaction.user_id == current_user.id)
+        .order_by(Transaction.created_at)
+    )
+    transactions = db_session.exec(statement).all()
+
+    total_to_pay = sum(
+        transaction.amount
+        for transaction in transactions
+        if transaction.direction == "to_pay"
+    )
+
+    total_to_receive = sum(
+        transaction.amount
+        for transaction in transactions
+        if transaction.direction == "to_receive"
+    )
+
+    return TransactionAmountResponse(
+        total_to_pay=total_to_pay, total_to_receive=total_to_receive
+    )
+
+
 @transaction_router.post("/transactions", response_model=TransactionCreateReponse)
 async def create_transaction(
-    transaction_in: TransactionCreate,
+    transaction_in: Annotated[TransactionCreate, Form()],
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db_session: Session = Depends(get_session),
 ):
