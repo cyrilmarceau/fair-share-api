@@ -18,7 +18,9 @@ from app.transactions.schemas import (
 transaction_router = APIRouter(tags=["Transactions"])
 
 
-@transaction_router.get("/transaction-amount", response_model=TransactionAmountResponse)
+@transaction_router.get(
+    "/transactions/amount", response_model=TransactionAmountResponse
+)
 async def get_transaction_amount(
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db_session: Session = Depends(get_session),
